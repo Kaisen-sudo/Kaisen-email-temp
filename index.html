@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAISEN EMAIL TEMP | Live</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root { --p: #bc00ff; --c: #00f2ff; --bg: #050507; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg); color: white; font-family: 'Share Tech Mono', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; padding: 20px; }
+        .grid-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(188, 0, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(188, 0, 255, 0.05) 1px, transparent 1px); background-size: 40px 40px; z-index: -1; transform: perspective(500px) rotateX(60deg); animation: moveGrid 20s linear infinite; }
+        @keyframes moveGrid { from { transform: perspective(500px) rotateX(60deg) translateY(0); } to { transform: perspective(500px) rotateX(60deg) translateY(40px); } }
+        .container { width: 100%; max-width: 450px; background: rgba(10, 10, 15, 0.9); backdrop-filter: blur(15px); border: 1px solid var(--p); border-radius: 20px; padding: 30px; box-shadow: 0 0 40px rgba(188, 0, 255, 0.25); text-align: center; }
+        .logo-container { margin-bottom: 20px; display: flex; justify-content: center; align-items: center; gap: 12px; }
+        .logo-icon { width: 45px; height: 45px; filter: drop-shadow(0 0 8px var(--p)); }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 20px; color: var(--c); letter-spacing: 2px; text-shadow: 0 0 10px var(--c); }
+        .email-display { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 12px; border: 1px solid #333; display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+        #emailText { color: #fff; font-size: 14px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 85%; }
+        .btn-main { width: 100%; padding: 16px; background: var(--p); border: none; color: white; font-family: 'Orbitron'; border-radius: 10px; cursor: pointer; font-weight: bold; box-shadow: 0 0 20px var(--p); margin-bottom: 15px; }
+        .inbox { background: rgba(0,0,0,0.6); border-radius: 12px; border: 1px solid #222; overflow: hidden; }
+        .inbox-header { padding: 12px; background: rgba(188, 0, 255, 0.15); font-size: 11px; display: flex; justify-content: space-between; color: var(--c); border-bottom: 1px solid #333; }
+        #msgList { max-height: 250px; overflow-y: auto; min-height: 100px; }
+        .msg-card { padding: 15px; border-bottom: 1px solid #1a1a1a; cursor: pointer; text-align: left; }
+        .msg-from { color: var(--c); font-size: 10px; }
+        .msg-sub { font-size: 14px; font-weight: bold; margin-top: 4px; color: #eee; }
+        .footer { margin-top: 25px; font-size: 11px; color: rgba(255, 255, 255, 0.4); letter-spacing: 1px; font-family: 'Orbitron', sans-serif; }
+        .footer b { color: var(--p); text-shadow: 0 0 5px var(--p); }
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #0a0a0c; padding: 25px; border-radius: 15px; border: 1px solid var(--c); width: 100%; max-width: 450px; }
+        #loader { display: none; width: 25px; height: 25px; border: 3px solid var(--c); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="container">
+        <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#00f2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="#bc00ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="#bc00ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h1>KAISEN EMAIL</h1>
+        </div>
+        <div id="loader"></div>
+        <div class="email-display">
+            <span id="emailText">INITIALISATION...</span>
+            <span class="material-icons" style="color:var(--c); cursor:pointer;" onclick="copyMail()">content_copy</span>
+        </div>
+        <button class="btn-main" onclick="generate()">NOUVELLE IDENTITÉ</button>
+        <div class="inbox">
+            <div class="inbox-header"><span>INBOX 📥</span><span id="timer">SCAN: 5s</span></div>
+            <div id="msgList"><div style="padding:40px; text-align:center; opacity:0.3; font-size:11px;">Aucun message reçu</div></div>
+        </div>
+    </div>
+    <div class="footer">Made with ♥️ by <b>Kaisen 👑</b></div>
+    <div id="modal" onclick="this.style.display='none'"><div class="modal-content" onclick="event.stopPropagation()"><div id="mFrom" style="color:var(--c); font-size:11px"></div><div id="mSub" style="font-weight:bold; margin: 10px 0; font-size: 16px;"></div><hr style="border:0; border-top:1px solid #333; margin:15px 0"><div id="mBody" style="font-size:14px; color:#ccc; white-space:pre-wrap; max-height: 300px; overflow-y: auto;"></div></div></div>
+    <audio id="snd" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
+    <script>
+        let user = "", dom = "", count = 0, timer = 5;
+        // Proxy robuste pour Vercel
+        const proxy = "https://corsproxy.io/?";
+
+        async function fetchSafe(url) {
+            try {
+                const res = await fetch(proxy + encodeURIComponent(url));
+                return await res.json();
+            } catch (e) { console.error("Erreur Fetch", e); return []; }
+        }
+
+        async function generate() {
+            document.getElementById('loader').style.display = "block";
+            const domains = ["1secmail.com", "1secmail.org", "1secmail.net"];
+            user = Math.random().toString(36).substring(2, 12);
+            dom = domains[Math.floor(Math.random() * domains.length)];
+            document.getElementById('emailText').innerText = `${user}@${dom}`;
+            document.getElementById('msgList').innerHTML = '<div style="padding:40px; text-align:center; opacity:0.3; font-size:11px;">Synchronisation...</div>';
+            count = 0;
+            document.getElementById('loader').style.display = "none";
+        }
+
+        async function check() {
+            if(!user) return;
+            const url = `https://www.1secmail.com/api/v1/?action=getMessages&login=${user}&domain=${dom}`;
+            const msgs = await fetchSafe(url);
+            if(Array.isArray(msgs) && msgs.length > count) {
+                document.getElementById('snd').play();
+                count = msgs.length;
+                const list = document.getElementById('msgList');
+                list.innerHTML = "";
+                msgs.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = "msg-card";
+                    div.innerHTML = `<div class="msg-from">${m.from}</div><div class="msg-sub">${m.subject}</div>`;
+                    div.onclick = () => read(m.id);
+                    list.prepend(div);
+                });
+            }
+        }
+
+        async function read(id) {
+            const url = `https://www.1secmail.com/api/v1/?action=readMessage&login=${user}&domain=${dom}&id=${id}`;
+            const m = await fetchSafe(url);
+            document.getElementById('mFrom').innerText = "DE: " + m.from;
+            document.getElementById('mSub').innerText = m.subject;
+            document.getElementById('mBody').innerText = m.textBody || "Message vide ou format HTML.";
+            document.getElementById('modal').style.display = "flex";
+        }
+
+        function copyMail() {
+            const t = document.getElementById('emailText').innerText;
+            if(t.includes('@')) { navigator.clipboard.writeText(t); alert("Copié !"); }
+        }
+
+        // Lancement au démarrage
+        window.onload = generate;
+
+        setInterval(() => {
+            if(user) {
+                timer--;
+                if(timer <= 0) { check(); timer = 5; }
+                document.getElementById('timer').innerText = `SCAN: ${timer}s`;
+            }
+        }, 1000);
+    </script>
+</body>
+                                                                                                                                                                                                                               </html>
+                                                                                                                                                                                                                               
