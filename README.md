@@ -13,5 +13,5 @@
 ## 🛠️ Installation
 1. Clonez ce dépôt :
    ```bash
-   git clone [https://github.com/VOTRE_NOM/kaisen-email-temp.git](https://github.com/VOTRE_NOM/kaisen-email-temp.git)
+   git clone [https://github.com/kaisen-sudo/kaisen-email-temp.git](https://github.com/Kaisen-sudo/kaisen-email-temp.git)
    
